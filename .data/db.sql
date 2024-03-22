@@ -1,10 +1,16 @@
-CREATE TABLE"accounts"("id"bigserial PRIMARY KEY,"owner"varchar NOT NULL,"balance"bigint NOT NULL,"currency"varchar NOT NULL,"created_at"timestamptz NOT NULL DEFAULT'now()');
+CREATE TABLE "accounts" (
+  "id" bigserial PRIMARY KEY,
+  "owner" varchar NOT NULL,
+  "balance" bigint NOT NULL,
+  "currency" varchar NOT NULL,
+  "created_at" timestamptz NOT NULL DEFAULT (now())
+);
 
 CREATE TABLE "entries" (
   "id" bigserial PRIMARY KEY,
   "account_id" bigint,
   "amount" bigint NOT NULL,
-  "created_at" timestamptz NOT NULL DEFAULT 'now()'
+  "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE "transfers" (
@@ -12,7 +18,7 @@ CREATE TABLE "transfers" (
   "from_account_id" bigint,
   "to_account_id" bigint,
   "amount" bigint NOT NULL,
-  "created_at" timestamptz NOT NULL DEFAULT 'now()'
+  "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE INDEX ON "accounts" ("owner");
