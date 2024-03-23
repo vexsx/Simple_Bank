@@ -5,30 +5,31 @@
 package db
 
 import (
-	"github.com/jackc/pgx/v5/pgtype"
+	"database/sql"
+	"time"
 )
 
-type Accounts struct {
-	ID        int64              `json:"id"`
-	Owner     string             `json:"owner"`
-	Balance   int64              `json:"balance"`
-	Currency  string             `json:"currency"`
-	CreatedAt pgtype.Timestamptz `json:"created_at"`
+type Account struct {
+	ID        int64     `json:"id"`
+	Owner     string    `json:"owner"`
+	Balance   int64     `json:"balance"`
+	Currency  string    `json:"currency"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
-type Entries struct {
-	ID        int64       `json:"id"`
-	AccountID pgtype.Int8 `json:"account_id"`
+type Entry struct {
+	ID        int64         `json:"id"`
+	AccountID sql.NullInt64 `json:"account_id"`
 	// can be nagative or posetive
-	Amount    int64              `json:"amount"`
-	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	Amount    int64     `json:"amount"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
-type Transfers struct {
-	ID            int64       `json:"id"`
-	FromAccountID pgtype.Int8 `json:"from_account_id"`
-	ToAccountID   pgtype.Int8 `json:"to_account_id"`
+type Transfer struct {
+	ID            int64         `json:"id"`
+	FromAccountID sql.NullInt64 `json:"from_account_id"`
+	ToAccountID   sql.NullInt64 `json:"to_account_id"`
 	// must be posetive
-	Amount    int64              `json:"amount"`
-	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	Amount    int64     `json:"amount"`
+	CreatedAt time.Time `json:"created_at"`
 }
