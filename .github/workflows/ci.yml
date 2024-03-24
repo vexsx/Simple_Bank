@@ -1,30 +1,32 @@
-  on:
-    push:
-      branches: [ master ]
-    pull_request:
-      branches: [ master]
+name: Go Test Workflow
 
-  jobs:
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 
-    test:
-      name: Test
-      runs-on: ubuntu-latest
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
 
-      steps:
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.22.1'
 
-          - name: Set up Go
-            uses: actions/setup-go@v4
-            with:
-              go-version: '1.22.1'
+      - name: Install migrate
+        run: |
+          curl -L https://github.com/golang-migrate/migrate/releases/download/v4.17.0/migrate.linux-amd64.tar.gz | tar xvz
+          sudo mv migrate.linux-amd64 /usr/local/bin/migrate
+          migrate --version
 
-          - name: INstall migrate
-            uses: |
-              $ curl -L https://github.com/golang-migrate/migrate/releases/download/v4.17.0/migrate.linux-amd64.tar.gz   | tar xvz
-              sudo mv migrate.linux-amd64 /usr/bin/
-              which migrate
+      - name: Run migration
+        run: make migrate
 
-          - name: run migration
-            run: make migrate
-
-          - name: Test
-            run: make test
+      - name: Test
+        run: make test
