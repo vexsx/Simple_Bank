@@ -10,7 +10,7 @@ on:
 
 jobs:
   test:
-    name: Test
+    name: Testing
     runs-on: ubuntu-latest
 
     steps:
