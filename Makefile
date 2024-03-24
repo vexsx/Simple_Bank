@@ -7,5 +7,7 @@ migratedown :
 test:
 	go test -v -cover ./...
 
+server :
+	go run main.go
 
-.PHONY: migrateup migrateup test
+.PHONY: migrateup migrateup test server
