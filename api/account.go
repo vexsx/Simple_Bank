@@ -88,7 +88,7 @@ type updateAccountRequest struct {
 	Balance int64 `json:"balance" binding:"required"`
 }
 
-func (server *Server) updateAccount(ctx *gin.Context) {
+func (server *Server) updateAccountBalance(ctx *gin.Context) {
 	var req updateAccountRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
