@@ -5,17 +5,18 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/vexsx/Simple-Bank/api"
 	db "github.com/vexsx/Simple-Bank/db/sqlc"
+	"github.com/vexsx/Simple-Bank/util"
 	"log"
 )
 
-const (
-	dbDriver      = "postgres"
-	dbSource      = "postgresql://vexsx:New2021!@167.99.138.192:5432/Bank_db?sslmode=disable"
-	serverAdderss = "0.0.0.0:8080"
-)
-
 func main() {
-	conn, err := sql.Open(dbDriver, dbSource)
+
+	config, err := util.LoadConfig(".")
+	if err != nil {
+		log.Fatal("cannot load config")
+	}
+
+	conn, err := sql.Open(config.DBDriver, config.DBSource)
 	if err != nil {
 		log.Fatal("error with opening db", err)
 	}
@@ -23,7 +24,7 @@ func main() {
 	store := db.NewStore(conn)
 	server := api.NewServer(store)
 
-	err = server.Start(serverAdderss)
+	err = server.Start(config.ServerAddress)
 	if err != nil {
 		log.Fatal("cannot start server", err)
 	}
