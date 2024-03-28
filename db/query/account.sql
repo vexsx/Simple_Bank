@@ -15,7 +15,7 @@ SELECT * FROM accounts WHERE owner=$1 ORDER BY id LIMIT $2 OFFSET $3;
 UPDATE accounts SET balance = $2 WHERE id = $1 RETURNING *;
 
 -- name: AddAccountBalance :one
-UPDATE accounts SET balance = balance + sqlc.arg(amount) WHERE id = sqlc.arg(id) RETURNING *;
+UPDATE accounts SET balance = balance + sqlc.arg(amount) WHERE id = sqlc.arg(id) AND owner=$1 RETURNING *;
 
 -- name: DeleteAccount :exec
 DELETE FROM accounts WHERE id = $1;
