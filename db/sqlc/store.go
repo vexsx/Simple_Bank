@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 )
 
 type Store struct {
@@ -106,6 +107,7 @@ func AddMoney(ctx context.Context, q *Queries, accountID1, amount1, accountID2, 
 		Amount: amount1,
 	})
 	if err != nil {
+		log.Fatalf("in AddMoney cant addbalance")
 		return
 	}
 
@@ -114,6 +116,7 @@ func AddMoney(ctx context.Context, q *Queries, accountID1, amount1, accountID2, 
 		Amount: amount2,
 	})
 	if err != nil {
+		log.Fatalf("in AddMoney cant addbalance")
 		return
 	}
 	return
