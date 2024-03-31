@@ -42,6 +42,7 @@ func (server *Server) setUpRouter() {
 	//user action
 	router.POST("/User/Create", server.createUser)
 	router.POST("/User/Login", server.loginUser)
+	router.POST("/Tokens/Renew_Access", server.renewAccessToken)
 	router.GET("/User/:username", server.getUser)
 
 	//from here need auth
