@@ -114,11 +114,8 @@ func (server *Server) updateAccountBalance(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
-
 	//authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
 	arg := db.AddAccountBalanceParams{
-		Owner:  authPayload.Username,
 		ID:     req.ID,
 		Amount: req.Amount,
 	}
