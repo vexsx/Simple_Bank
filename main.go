@@ -126,7 +126,8 @@ func runGatewayServer(config util.Config, store *db.Store) {
 		log.Fatal().Err(err).Msg("cannot creat grpc listener")
 	}
 	log.Printf("start http gateway server at %s", listener.Addr().String())
-	err = http.Serve(listener, mux)
+	handler := gapi.HttpLogger(mux)
+	err = http.Serve(listener, handler)
 	if err != nil {
 		log.Fatal().Err(err).Msg("cannot create HTTP Gateway server")
 	}
