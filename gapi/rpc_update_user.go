@@ -14,16 +14,29 @@ import (
 )
 
 func (server *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UpdateUserResponse, error) {
+	authPayload, err := server.authorizeUser(ctx)
+	if err != nil {
+		return nil, unauthenticatedError(err)
+	}
 
 	violations := validateUpdateUserRequest(req)
 	if violations != nil {
 		return nil, invalidArgumentError(violations)
 	}
 
+	if authPayload.Username != req.Username {
+		return nil, status.Errorf(codes.PermissionDenied, "cannot update other users  info")
+	}
 	arg := db.UpdateUserParams{
 		Username: req.GetUsername(),
-		FullName: req.GetFullName(),
-		Email:    req.GetEmail(),
+		FullName: sql.NullString{
+			String: req.GetFullName(),
+			Valid:  req.FullName != nil,
+		},
+		Email: sql.NullString{
+			String: req.GetEmail(),
+			Valid:  req.Email != nil,
+		},
 	}
 
 	if req.Password != nil {
@@ -32,9 +45,15 @@ func (server *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest)
 			return nil, status.Errorf(codes.Internal, "failed to hash password: %s", err)
 		}
 
-		arg.HashedPassword = hashedPassword
+		arg.HashedPassword = sql.NullString{
+			String: hashedPassword,
+			Valid:  true,
+		}
 
-		arg.PasswordChangedAt = time.Now()
+		arg.PasswordChangedAt = sql.NullTime{
+			Time:  time.Now(),
+			Valid: true,
+		}
 	}
 
 	user, err := server.store.UpdateUser(ctx, arg)
