@@ -14,7 +14,7 @@ RUN go mod download
 COPY . .
 
 
-RUN go build -o ./app ./cmd/web/*.go
+RUN go build -o ./app ./app/main.go
 
 
 EXPOSE 80
