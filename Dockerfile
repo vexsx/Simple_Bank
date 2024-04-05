@@ -8,13 +8,13 @@ WORKDIR /app
 COPY go.* ./
 
 
-RUN go mod download
+RUN go mod tidy
 
 
 COPY . .
 
 
-RUN go build -o ./app ./app/main.go
+RUN go build -o ./app
 
 
 EXPOSE 80
