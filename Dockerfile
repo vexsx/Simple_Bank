@@ -1,5 +1,5 @@
 # Build stage
-FROM golang:1.22.6 AS build
+FROM golang:1.22 AS build
 LABEL authors="vexsx"
 
 WORKDIR /app
