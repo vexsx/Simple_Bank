@@ -13,7 +13,7 @@ COPY . .
 RUN go build -o main main.go
 
 # Final stage
-FROM alpine:3.19
+FROM alpine:latest
 WORKDIR /app
 COPY --from=builder /app/main .
 COPY app.env .
