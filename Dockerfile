@@ -1,12 +1,11 @@
 # Build stage
-FROM golang:1.22 AS build
+FROM golang:1.22-alpine AS builder
 LABEL authors="vexsx"
 
 WORKDIR /app
 
-COPY go.* ./
-
-RUN go mod tidy
+COPY go.mod go.sum ./
+RUN go mod download
 
 COPY . .
 
@@ -14,10 +13,13 @@ RUN go build -o main main.go
 
 # Final stage
 FROM alpine:latest
+
 WORKDIR /app
+
 COPY --from=builder /app/main .
 COPY app.env .
 COPY db/migration ./db/migration
 
 EXPOSE 80
-CMD [ "/app/main" ]
+
+CMD ["/app/main"]
