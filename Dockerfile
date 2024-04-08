@@ -5,17 +5,19 @@ LABEL authors="vexsx"
 WORKDIR /app
 
 COPY go.* ./
-RUN go mod download
+
+RUN go mod tidy
 
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /app/app .
+
+RUN go build -o main main.go
 
 # Final stage
-FROM alpine:latest
+FROM alpine:3.19
 WORKDIR /app
-
-COPY --from=build /app/app /app/app
+COPY --from=builder /app/main .
+COPY app.env .
+COPY db/migration ./db/migration
 
 EXPOSE 80
-
-CMD ["/app/app"]
+CMD [ "/app/main" ]
