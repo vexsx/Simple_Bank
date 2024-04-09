@@ -31,6 +31,6 @@ proto:
         proto/*.proto
 
 evans:
-	evans --host localhost --port 9090 -r repl
+	evans --host localhost --port 90 -r repl
 
 .PHONY: migrateup migrateup  migrateup1 migrateup1 test server db_docs db_schema proto evans
