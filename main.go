@@ -11,6 +11,7 @@ import (
 	"github.com/vexsx/Simple-Bank/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/protobuf/encoding/protojson"
 	"net"
 	"net/http"
 
@@ -80,7 +81,17 @@ func runGatewayServer(config util.Config, store *db.Store) {
 		log.Fatal("cannot create server", err)
 	}
 
-	grpcMux := runtime.NewServeMux()
+	//Using proto names in JSON
+	jsonOption := runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
+		MarshalOptions: protojson.MarshalOptions{
+			UseProtoNames: true,
+		},
+		UnmarshalOptions: protojson.UnmarshalOptions{
+			DiscardUnknown: true,
+		},
+	})
+
+	grpcMux := runtime.NewServeMux(jsonOption)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	err = pb.RegisterSimpleBankHandlerServer(ctx, grpcMux, server)
