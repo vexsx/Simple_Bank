@@ -37,7 +37,7 @@ func main() {
 	}
 
 	//db migration for in case wants dbms inside docker
-	//runDBMigration(config.MigrationURL, config.DBSource)
+	runDBMigration(config.MigrationURL, config.DBSource)
 
 	store := db.NewStore(conn)
 
