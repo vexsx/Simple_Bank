@@ -9,6 +9,7 @@ import (
 	db "github.com/vexsx/Simple-Bank/db/sqlc"
 	"github.com/vexsx/Simple-Bank/token"
 	"github.com/vexsx/Simple-Bank/util"
+	"time"
 )
 
 type Server struct {
@@ -44,11 +45,23 @@ func (server *Server) setUpRouter() {
 
 	router := gin.Default()
 
-	// same as
-	// config := cors.DefaultConfig()
-	// config.AllowAllOrigins = true
-	// router.Use(cors.New(config))
-	router.Use(cors.Default())
+	// CORS for *, allowing:
+	// - POST and PATCH, GET methods
+	// - Origin header
+	// - Credentials share
+	// - Preflight requests cached for 12 hours
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:        []string{"*"},
+		AllowMethods:        []string{"PATCH", "POST", "GET"},
+		AllowHeaders:        []string{"*"},
+		ExposeHeaders:       []string{"Content-Length"},
+		AllowPrivateNetwork: true,
+		AllowCredentials:    true,
+		AllowOriginFunc: func(origin string) bool {
+			return origin == "https://github.com"
+		},
+		MaxAge: 12 * time.Hour,
+	}))
 
 	//user action
 	router.POST("/User/Create", server.createUser)
@@ -58,7 +71,18 @@ func (server *Server) setUpRouter() {
 
 	//from here need auth
 	authRoutes := router.Group("/").Use(authMiddleWare(server.tokenMaker))
-	authRoutes.Use(cors.Default())
+	authRoutes.Use(cors.New(cors.Config{
+		AllowOrigins:        []string{"*"},
+		AllowMethods:        []string{"PATCH", "POST", "GET"},
+		AllowHeaders:        []string{"*"},
+		ExposeHeaders:       []string{"Content-Length"},
+		AllowPrivateNetwork: true,
+		AllowCredentials:    true,
+		AllowOriginFunc: func(origin string) bool {
+			return origin == "https://github.com"
+		},
+		MaxAge: 12 * time.Hour,
+	}))
 
 	//account actions
 	authRoutes.POST("/CreateAccount", server.createAccount)
