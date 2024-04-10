@@ -2,12 +2,14 @@ package api
 
 import (
 	"fmt"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
 	db "github.com/vexsx/Simple-Bank/db/sqlc"
 	"github.com/vexsx/Simple-Bank/token"
 	"github.com/vexsx/Simple-Bank/util"
+	"time"
 )
 
 type Server struct {
@@ -42,6 +44,20 @@ func NewServer(config util.Config, store *db.Store) (*Server, error) {
 func (server *Server) setUpRouter() {
 
 	router := gin.Default()
+
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:        []string{"*"},
+		AllowMethods:        []string{"PATCH", "POST", "GET"},
+		AllowHeaders:        []string{"*"},
+		ExposeHeaders:       []string{"Content-Length"},
+		AllowPrivateNetwork: true,
+		AllowCredentials:    true,
+		AllowOriginFunc: func(origin string) bool {
+			return origin == "https://github.com"
+		},
+		MaxAge: 12 * time.Hour,
+	}))
+
 	//user action
 	router.POST("/User/Create", server.createUser)
 	router.POST("/User/Login", server.loginUser)
@@ -50,6 +66,18 @@ func (server *Server) setUpRouter() {
 
 	//from here need auth
 	authRoutes := router.Group("/").Use(authMiddleWare(server.tokenMaker))
+	authRoutes.Use(cors.New(cors.Config{
+		AllowOrigins:        []string{"*"},
+		AllowMethods:        []string{"PATCH", "POST", "GET"},
+		AllowHeaders:        []string{"*"},
+		ExposeHeaders:       []string{"Content-Length"},
+		AllowPrivateNetwork: true,
+		AllowCredentials:    true,
+		AllowOriginFunc: func(origin string) bool {
+			return origin == "https://github.com"
+		},
+		MaxAge: 12 * time.Hour,
+	}))
 
 	//account actions
 	authRoutes.POST("/CreateAccount", server.createAccount)
