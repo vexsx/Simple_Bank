@@ -18,7 +18,7 @@ WORKDIR /app
 
 COPY --from=builder /app/main .
 COPY app.env .
-COPY db/migration ./db/migration
+COPY db/migration ./migration
 
 EXPOSE 80
 

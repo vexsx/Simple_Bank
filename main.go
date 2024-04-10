@@ -3,36 +3,41 @@ package main
 import (
 	"context"
 	"database/sql"
+	"net"
+	"net/http"
+
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	_ "github.com/lib/pq"
 	"github.com/rakyll/statik/fs"
+	"github.com/rs/zerolog/log"
 	"github.com/vexsx/Simple-Bank/api"
 	db "github.com/vexsx/Simple-Bank/db/sqlc"
 	_ "github.com/vexsx/Simple-Bank/doc/statik"
 	"github.com/vexsx/Simple-Bank/gapi"
 	"github.com/vexsx/Simple-Bank/pb"
+	"github.com/vexsx/Simple-Bank/util"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/protobuf/encoding/protojson"
-	"net"
-	"net/http"
-
-	"github.com/vexsx/Simple-Bank/util"
-
-	"log"
 )
 
 func main() {
 
 	config, err := util.LoadConfig(".")
 	if err != nil {
-		log.Fatal("cannot load config")
+		log.Fatal().Err(err).Msg("cannot load config")
 	}
 
 	conn, err := sql.Open(config.DBDriver, config.DBSource)
 	if err != nil {
-		log.Fatal("error with opening db", err)
+		log.Fatal().Err(err).Msg("error with opening db")
 	}
+
+	//db migration for in case wants dbms inside docker
+	//runDBMigration(config.MigrationURL, config.DBSource)
 
 	store := db.NewStore(conn)
 
@@ -41,23 +46,36 @@ func main() {
 
 }
 
+func runDBMigration(migrationURL string, dbSource string) {
+	migration, err := migrate.New(migrationURL, dbSource)
+	if err != nil {
+		log.Fatal().Err(err).Msg("cannot create new migrate instance")
+	}
+
+	if err = migration.Up(); err != nil && err != migrate.ErrNoChange {
+		log.Fatal().Err(err).Msg("failed to run migrate up")
+	}
+
+	log.Printf("db migrated seccessfull ")
+}
+
 func runGinServer(config util.Config, store *db.Store) {
 
 	server, err := api.NewServer(config, store)
 	if err != nil {
-		log.Fatal("cannot create server", err)
+		log.Fatal().Err(err).Msg("cannot create server")
 	}
 
 	err = server.Start(config.HTTPServerAddress)
 	if err != nil {
-		log.Fatal("cannot start server", err)
+		log.Fatal().Err(err).Msg("cannot start server")
 	}
 }
 
 func runGrpcServer(config util.Config, store *db.Store) {
 	server, err := gapi.NewServer(config, store)
 	if err != nil {
-		log.Fatal("cannot create server", err)
+		log.Fatal().Err(err).Msg("cannot create server")
 	}
 
 	grpcServer := grpc.NewServer()
@@ -66,21 +84,21 @@ func runGrpcServer(config util.Config, store *db.Store) {
 
 	listener, err := net.Listen("tcp", config.GRPCServerAddress)
 	if err != nil {
-		log.Fatal("cannot create listener", err)
+		log.Fatal().Err(err).Msg("cannot create listener")
 	}
 
 	log.Printf("start Grpc server at %s", listener.Addr().String())
 
 	err = grpcServer.Serve(listener)
 	if err != nil {
-		log.Fatal("cannot start Grpc server", err)
+		log.Fatal().Err(err).Msg("cannot start Grpc server")
 	}
 }
 
 func runGatewayServer(config util.Config, store *db.Store) {
 	server, err := gapi.NewServer(config, store)
 	if err != nil {
-		log.Fatal("cannot create server", err)
+		log.Fatal().Err(err).Msg("cannot create server")
 	}
 
 	//Using proto names in JSON
@@ -98,7 +116,7 @@ func runGatewayServer(config util.Config, store *db.Store) {
 	defer cancel()
 	err = pb.RegisterSimpleBankHandlerServer(ctx, grpcMux, server)
 	if err != nil {
-		log.Fatal("cannot create grpc gateway", err)
+		log.Fatal().Err(err).Msg("cannot create grpc gateway")
 	}
 
 	mux := http.NewServeMux()
@@ -106,7 +124,7 @@ func runGatewayServer(config util.Config, store *db.Store) {
 
 	statikFS, err := fs.New()
 	if err != nil {
-		log.Fatal("cannot create statik FS", err)
+		log.Fatal().Err(err).Msg("cannot create statik FS")
 	}
 
 	swaggerHandler := http.StripPrefix("/swagger/", http.FileServer(statikFS))
@@ -114,13 +132,13 @@ func runGatewayServer(config util.Config, store *db.Store) {
 
 	listener, err := net.Listen("tcp", config.HTTPServerAddress)
 	if err != nil {
-		log.Fatal("cannot create listener", err)
+		log.Fatal().Err(err).Msg("cannot create listener")
 	}
 
 	log.Printf("start HTTP gateway server at %s", listener.Addr().String())
 
 	err = http.Serve(listener, mux)
 	if err != nil {
-		log.Fatal("cannot start HTTP gateway  server", err)
+		log.Fatal().Err(err).Msg("cannot start HTTP gateway  server")
 	}
 }
