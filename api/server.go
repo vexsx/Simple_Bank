@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
@@ -42,6 +43,13 @@ func NewServer(config util.Config, store *db.Store) (*Server, error) {
 func (server *Server) setUpRouter() {
 
 	router := gin.Default()
+
+	// same as
+	// config := cors.DefaultConfig()
+	// config.AllowAllOrigins = true
+	// router.Use(cors.New(config))
+	router.Use(cors.Default())
+
 	//user action
 	router.POST("/User/Create", server.createUser)
 	router.POST("/User/Login", server.loginUser)
@@ -50,6 +58,7 @@ func (server *Server) setUpRouter() {
 
 	//from here need auth
 	authRoutes := router.Group("/").Use(authMiddleWare(server.tokenMaker))
+	authRoutes.Use(cors.Default())
 
 	//account actions
 	authRoutes.POST("/CreateAccount", server.createAccount)
