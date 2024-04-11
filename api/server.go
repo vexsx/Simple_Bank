@@ -50,18 +50,17 @@ func (server *Server) setUpRouter() {
 	// - Origin header
 	// - Credentials share
 	// - Preflight requests cached for 12 hours
-	router.Use(cors.New(cors.Config{
-		AllowOrigins:        []string{"*"},
+	config := cors.Config{
+		AllowOrigins:        []string{"*", "http://localhost:4200"},
 		AllowMethods:        []string{"PATCH", "POST", "GET"},
-		AllowHeaders:        []string{"*"},
-		ExposeHeaders:       []string{"Content-Length"},
+		AllowHeaders:        []string{"*", "Origin", "Authorization", "Content-Type"},
+		ExposeHeaders:       []string{"Content-Type"},
 		AllowPrivateNetwork: true,
 		AllowCredentials:    true,
-		AllowOriginFunc: func(origin string) bool {
-			return origin == "https://github.com"
-		},
-		MaxAge: 12 * time.Hour,
-	}))
+		MaxAge:              12 * time.Hour,
+	}
+
+	router.Use(cors.New(config))
 
 	//user action
 	router.POST("/User/Create", server.createUser)
@@ -71,18 +70,7 @@ func (server *Server) setUpRouter() {
 
 	//from here need auth
 	authRoutes := router.Group("/").Use(authMiddleWare(server.tokenMaker))
-	authRoutes.Use(cors.New(cors.Config{
-		AllowOrigins:        []string{"*"},
-		AllowMethods:        []string{"PATCH", "POST", "GET"},
-		AllowHeaders:        []string{"*"},
-		ExposeHeaders:       []string{"Content-Length"},
-		AllowPrivateNetwork: true,
-		AllowCredentials:    true,
-		AllowOriginFunc: func(origin string) bool {
-			return origin == "https://github.com"
-		},
-		MaxAge: 12 * time.Hour,
-	}))
+	authRoutes.Use(cors.New(config))
 
 	//account actions
 	authRoutes.POST("/CreateAccount", server.createAccount)
