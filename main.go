@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"database/sql"
+	"github.com/rs/zerolog"
 	"net"
 	"net/http"
+	"os"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -29,6 +31,10 @@ func main() {
 	config, err := util.LoadConfig(".")
 	if err != nil {
 		log.Fatal().Err(err).Msg("cannot load config")
+	}
+
+	if config.Environment == "development" {
+		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 	}
 
 	conn, err := sql.Open(config.DBDriver, config.DBSource)
@@ -56,7 +62,7 @@ func runDBMigration(migrationURL string, dbSource string) {
 		log.Fatal().Err(err).Msg("failed to run migrate up")
 	}
 
-	log.Printf("db migrated seccessfull ")
+	log.Info().Msg("db migrated successfully")
 }
 
 func runGinServer(config util.Config, store *db.Store) {
@@ -78,7 +84,8 @@ func runGrpcServer(config util.Config, store *db.Store) {
 		log.Fatal().Err(err).Msg("cannot create server")
 	}
 
-	grpcServer := grpc.NewServer()
+	grpcLogger := grpc.UnaryInterceptor(gapi.GrpcLogger)
+	grpcServer := grpc.NewServer(grpcLogger)
 	pb.RegisterSimpleBankServer(grpcServer, server)
 	reflection.Register(grpcServer)
 
@@ -87,7 +94,7 @@ func runGrpcServer(config util.Config, store *db.Store) {
 		log.Fatal().Err(err).Msg("cannot create listener")
 	}
 
-	log.Printf("start Grpc server at %s", listener.Addr().String())
+	log.Info().Msgf("start gRPC server at %s", listener.Addr().String())
 
 	err = grpcServer.Serve(listener)
 	if err != nil {
@@ -135,10 +142,11 @@ func runGatewayServer(config util.Config, store *db.Store) {
 		log.Fatal().Err(err).Msg("cannot create listener")
 	}
 
-	log.Printf("start HTTP gateway server at %s", listener.Addr().String())
-
-	err = http.Serve(listener, mux)
+	log.Info().Msgf("start HTTP gateway server at %s", listener.Addr().String())
+	handler := gapi.HttpLogger(mux)
+	err = http.Serve(listener, handler)
 	if err != nil {
-		log.Fatal().Err(err).Msg("cannot start HTTP gateway  server")
+		log.Fatal().Err(err).Msg("cannot create HTTP Gateway server")
 	}
+
 }
