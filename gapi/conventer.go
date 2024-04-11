@@ -20,3 +20,22 @@ func convertUser(user db.User) *pb.User {
 func convertTime(t time.Time) *timestamppb.Timestamp {
 	return timestamppb.New(t)
 }
+
+func convertAccount(account db.Account) *pb.Account {
+
+	return &pb.Account{
+		Id:        account.ID,
+		Owner:     account.Owner,
+		Balance:   account.Balance,
+		Currency:  account.Currency,
+		CreatedAt: convertTime(account.CreatedAt),
+	}
+}
+
+func convertAccounts(accounts []db.Account) []*pb.Account {
+	var pbAccounts []*pb.Account
+	for _, account := range accounts {
+		pbAccounts = append(pbAccounts, convertAccount(account))
+	}
+	return pbAccounts
+}
