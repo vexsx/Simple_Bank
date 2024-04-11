@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package db;
+package pb;
 import "google/protobuf/timestamp.proto";
 option go_package = "github.com/vexsx/Simple-Bank/pb";
 

@@ -1,8 +1,9 @@
 syntax = "proto3";
 
-package db;
+package pb;
 import "rpc_create_user.proto";
 import "rpc_login_user.proto";
+import "rpc_update_user.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 option go_package = "github.com/vexsx/Simple-Bank/pb";
@@ -24,6 +25,16 @@ service SimpleBank {
     option (google.api.http) = {
       post: "/User/Create"
       body: "*"
+    };
+  }
+  rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse) {
+    option (google.api.http) = {
+      patch: "/User/Update"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Use this API to update user";
+      summary: "Update user";
     };
   }
   rpc LoginUser (LoginUserRequest) returns (LoginUserResponse) {
