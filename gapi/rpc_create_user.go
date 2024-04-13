@@ -2,14 +2,16 @@ package gapi
 
 import (
 	"context"
-	"github.com/lib/pq"
+	"github.com/hibiken/asynq"
 	db "github.com/vexsx/Simple-Bank/db/sqlc"
 	"github.com/vexsx/Simple-Bank/pb"
 	"github.com/vexsx/Simple-Bank/util"
 	"github.com/vexsx/Simple-Bank/val"
+	"github.com/vexsx/Simple-Bank/worker"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"time"
 )
 
 func (server *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest) (*pb.CreateUserResponse, error) {
@@ -24,30 +26,38 @@ func (server *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest)
 		return nil, status.Errorf(codes.Internal, "cannot hash password :  %s ", err)
 	}
 
-	arg := db.CreateUserParams{
-		Username:       req.GetUsername(),
-		HashedPassword: hashedPassword,
-		FullName:       req.GetFullName(),
-		Email:          req.GetEmail(),
-	}
-
-	user, err := server.store.CreateUser(ctx, arg)
-	if err != nil {
-		if pqErr, ok := err.(*pq.Error); ok {
-			switch pqErr.Code.Name() {
-			case "unique_violation":
-				return nil, status.Errorf(codes.AlreadyExists, "username already exists :  %s ", err)
+	arg := db.CreateUserTxParams{
+		CreateUserParams: db.CreateUserParams{
+			Username:       req.GetUsername(),
+			HashedPassword: hashedPassword,
+			FullName:       req.GetFullName(),
+			Email:          req.GetEmail(),
+		},
+		AfterCreate: func(user db.User) error {
+			taskPayload := &worker.PayloadSendVerifyEmail{
+				Username: user.Username,
 			}
-		}
-		return nil, status.Errorf(codes.Internal, "failed to create user :  %s ", err)
+			opts := []asynq.Option{
+				asynq.MaxRetry(10),
+				asynq.ProcessIn(10 * time.Second),
+				asynq.Queue(worker.QueueCritical),
+			}
+
+			return server.taskDistributor.DistributeTaskSendVerifyEmail(ctx, taskPayload, opts...)
+		},
 	}
 
-	//TODO send verify email
+	txResult, err := server.store.CreateUserTx(ctx, arg)
+	if err != nil {
+		//if db.ErrorCode(err) == db.UniqueViolation {
+		//	return nil, status.Errorf(codes.AlreadyExists, err.Error())
+		//}
+		return nil, status.Errorf(codes.Internal, "failed to create user: %s", err)
+	}
 
 	rsp := &pb.CreateUserResponse{
-		User: convertUser(user),
+		User: convertUser(txResult.User),
 	}
-
 	return rsp, nil
 }
 
