@@ -3,17 +3,14 @@ package main
 import (
 	"context"
 	"database/sql"
-	"github.com/rs/zerolog"
-	"net"
-	"net/http"
-	"os"
-
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	_ "github.com/lib/pq"
 	"github.com/rakyll/statik/fs"
+	rcors "github.com/rs/cors"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/vexsx/Simple-Bank/api"
 	db "github.com/vexsx/Simple-Bank/db/sqlc"
@@ -24,6 +21,10 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/protobuf/encoding/protojson"
+	"net"
+	"net/http"
+	"os"
+	"time"
 )
 
 func main() {
@@ -143,7 +144,18 @@ func runGatewayServer(config util.Config, store *db.Store) {
 	}
 
 	log.Info().Msgf("start HTTP gateway server at %s", listener.Addr().String())
-	handler := gapi.HttpLogger(mux)
+
+	corsMiddleware := rcors.New(rcors.Options{
+		AllowedOrigins:      []string{"*", "http://localhost:4200"},
+		AllowedMethods:      []string{"PATCH", "POST", "GET"},
+		AllowedHeaders:      []string{"*", "Origin", "Authorization", "Content-Type"},
+		ExposedHeaders:      []string{"Content-Type"},
+		AllowPrivateNetwork: true,
+		AllowCredentials:    true,
+		MaxAge:              int(12 * time.Hour),
+	})
+
+	handler := corsMiddleware.Handler(gapi.HttpLogger(mux))
 	err = http.Serve(listener, handler)
 	if err != nil {
 		log.Fatal().Err(err).Msg("cannot create HTTP Gateway server")
