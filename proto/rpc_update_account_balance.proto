@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package pb;
+import "account.proto";
+option go_package = "github.com/vexsx/Simple-Bank/pb";
+
+message UpdateAccountBalanceRequest {
+  int64 id = 1;
+  int64 amount=2;
+}
+
+message UpdateAccountBalanceResponse {
+  Account account = 1;
+}

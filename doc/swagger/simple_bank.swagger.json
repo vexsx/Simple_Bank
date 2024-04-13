@@ -2,7 +2,7 @@
   "swagger": "2.0",
   "info": {
     "title": "Simple Bank API",
-    "version": "1.3.3",
+    "version": "1.3.5",
     "contact": {
       "name": "Vexsx",
       "url": "https://github.com/vexsx",
@@ -195,6 +195,40 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/pbRenewAccessTokenRequest"
+            }
+          }
+        ],
+        "tags": [
+          "SimpleBank"
+        ]
+      }
+    },
+    "/UpdateAccountBalance": {
+      "post": {
+        "summary": "add balance",
+        "description": "Use this API to update account balance",
+        "operationId": "SimpleBank_UpdateAccountBalance",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbUpdateAccountBalanceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbUpdateAccountBalanceRequest"
             }
           }
         ],
@@ -455,6 +489,27 @@
         "AccessTokenExpiresAt": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "pbUpdateAccountBalanceRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "amount": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
+    "pbUpdateAccountBalanceResponse": {
+      "type": "object",
+      "properties": {
+        "account": {
+          "$ref": "#/definitions/pbAccount"
         }
       }
     },

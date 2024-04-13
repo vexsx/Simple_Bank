@@ -122,6 +122,7 @@ func runGatewayServer(config util.Config, store *db.Store) {
 	grpcMux := runtime.NewServeMux(jsonOption)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+	//opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 	err = pb.RegisterSimpleBankHandlerServer(ctx, grpcMux, server)
 	if err != nil {
 		log.Fatal().Err(err).Msg("cannot create grpc gateway")
