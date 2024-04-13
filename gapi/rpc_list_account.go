@@ -1,59 +1,32 @@
 package gapi
 
-//
-//import (
-//	"context"
-//	db "github.com/vexsx/Simple-Bank/db/sqlc"
-//	"github.com/vexsx/Simple-Bank/pb"
-//	"google.golang.org/grpc/codes"
-//	"google.golang.org/grpc/status"
-//)
-//
-//func (server *Server) ListAccountss(ctx context.Context, req *pb.ListAccountRequest) (*pb.ListAccountResponse, error) {
-//
-//	authPayload, err := server.authorizeUser(ctx)
-//	if err != nil {
-//		return nil, unauthenticatedError(err)
-//	}
-//
-//	arg := db.ListAccountsParams{
-//		Owner:  authPayload.Username,
-//		Limit:  req.PageSize,
-//		Offset: (req.PageID - 1) * req.PageSize,
-//	}
-//
-//	accounts, err := server.store.ListAccounts(ctx, arg)
-//	if err != nil {
-//		return nil, status.Errorf(codes.Internal, ": %s", err)
-//	}
-//
-//	rsp := &pb.ListAccountResponse{
-//		Account: convertAccount(accounts),
-//	}
-//	return nil, nil
-//}
-//
-//func (server *Server) ListAccount(req *pb.ListAccountRequest, srv pb.SimpleBank_ListAccountServer) error {
-//	ctx := context.Background()
-//	authPayload, err := server.authorizeUser(ctx)
-//	if err != nil {
-//		return unauthenticatedError(err)
-//	}
-//
-//	arg := db.ListAccountsParams{
-//		Owner:  authPayload.Username,
-//		Limit:  req.PageSize,
-//		Offset: (req.PageID - 1) * req.PageSize,
-//	}
-//
-//	accounts, err := server.store.ListAccounts(ctx, arg)
-//	if err != nil {
-//		return status.Errorf(codes.Internal, ": %s", err)
-//	}
-//
-//	// Create a response
-//	res := &pb.ListAccountResponse{
-//		Account: convertAccounts(accounts),
-//	}
-//
-//}
+import (
+	"context"
+	db "github.com/vexsx/Simple-Bank/db/sqlc"
+	"github.com/vexsx/Simple-Bank/pb"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+)
+
+func (server *Server) ListAccountss(ctx context.Context, req *pb.ListAccountRequest) (*pb.ListAccountResponse, error) {
+
+	//TODO lists accounts
+	authPayload, err := server.authorizeUser(ctx)
+	if err != nil {
+		return nil, unauthenticatedError(err)
+	}
+
+	arg := db.ListAccountsParams{
+		Owner:  authPayload.Username,
+		Limit:  req.PageSize,
+		Offset: (req.PageID - 1) * req.PageSize,
+	}
+
+	accounts, err := server.store.ListAccounts(ctx, arg)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, ": %s", err)
+	}
+
+	_ = accounts
+	return nil, nil
+}
