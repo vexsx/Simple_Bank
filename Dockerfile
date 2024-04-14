@@ -1,25 +1,18 @@
 # Build stage
-FROM golang:1.22-alpine AS builder
-LABEL authors="vexsx"
-
+FROM golang:1.22-alpine3.19 AS builder
 WORKDIR /app
-
-COPY go.mod go.sum ./
-RUN go mod download
-
 COPY . .
-
 RUN go build -o main main.go
 
-# Final stage
-FROM alpine:latest
-
+# Run stage
+FROM alpine:3.19
 WORKDIR /app
-
 COPY --from=builder /app/main .
 COPY app.env .
-COPY db/migration ./migration
+COPY start.sh .
+COPY wait-for.sh .
+COPY db/migration ./db/migration
 
-EXPOSE 80
-
-CMD ["/app/main"]
+EXPOSE 8080 9090
+CMD [ "/app/main" ]
+ENTRYPOINT [ "/app/start.sh" ]

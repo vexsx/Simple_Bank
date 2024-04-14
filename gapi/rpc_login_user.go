@@ -14,22 +14,20 @@ import (
 )
 
 func (server *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (*pb.LoginUserResponse, error) {
-
-	violations := validateLoginUserRequest(req)
-	if violations != nil {
-		return nil, invalidArgumentError(violations)
+	validation := validateLoginUserRequest(req)
+	if validation != nil {
+		return nil, invalidArgumentError(validation)
 	}
-
-	user, err := server.store.GetUser(ctx, req.GetUsername())
+	user, err := server.store.GetUser(ctx, req.Username)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, status.Errorf(codes.Internal, "user dosent exist :  %s ", err)
+			return nil, status.Errorf(codes.NotFound, "Username not found : %s", err)
 		}
-		return nil, status.Errorf(codes.Internal, "cannot find user :  %s ", err)
+		return nil, status.Errorf(codes.Internal, "internal error: %s", err)
 	}
 	err = util.CheckPassword(req.Password, user.HashedPassword)
 	if err != nil {
-		return nil, status.Errorf(codes.NotFound, "incorrect password :  %s ", err)
+		return nil, status.Errorf(codes.Unauthenticated, "unauthenticated: %s", err)
 	}
 
 	accessToken, accessPayload, err := server.tokenMaker.CreateToken(
@@ -37,7 +35,7 @@ func (server *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (
 		server.config.AccessTokenDuration,
 	)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to create access token :  %s ", err)
+		return nil, status.Errorf(codes.Internal, "faild to create token: %s", err)
 	}
 
 	refreshToken, refreshPayload, err := server.tokenMaker.CreateToken(
@@ -45,7 +43,7 @@ func (server *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (
 		server.config.RefreshTokenDuration,
 	)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to create refresh token :  %s ", err)
+		return nil, status.Errorf(codes.Internal, "faild to refresh token: %s", err)
 	}
 
 	mtdt := server.extractMetadata(ctx)
@@ -54,22 +52,23 @@ func (server *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (
 		Username:     user.Username,
 		RefreshToken: refreshToken,
 		UserAgent:    mtdt.UserAgent,
-		ClientIp:     mtdt.ClientIP,
+		ClientIp:     mtdt.ClientIp,
 		IsBlocked:    false,
 		ExpiresAt:    refreshPayload.ExpiredAt,
 	})
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to create session :  %s ", err)
+		return nil, status.Errorf(codes.Internal, "cant create session : %s", err)
 	}
 
 	rsp := &pb.LoginUserResponse{
 		User:                  convertUser(user),
-		SessionID:             session.ID.String(),
+		SessionId:             session.ID.String(),
 		AccessToken:           accessToken,
 		RefreshToken:          refreshToken,
 		AccessTokenExpiresAt:  timestamppb.New(accessPayload.ExpiredAt),
 		RefreshTokenExpiresAt: timestamppb.New(refreshPayload.ExpiredAt),
 	}
+
 	return rsp, nil
 }
 

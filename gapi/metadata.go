@@ -14,7 +14,7 @@ const (
 
 type Metadata struct {
 	UserAgent string
-	ClientIP  string
+	ClientIp  string
 }
 
 func (server *Server) extractMetadata(ctx context.Context) *Metadata {
@@ -30,12 +30,12 @@ func (server *Server) extractMetadata(ctx context.Context) *Metadata {
 		}
 
 		if clientIPs := md.Get(xForwardedForHeader); len(clientIPs) > 0 {
-			mtdt.ClientIP = clientIPs[0]
+			mtdt.ClientIp = clientIPs[0]
 		}
 	}
 
 	if p, ok := peer.FromContext(ctx); ok {
-		mtdt.ClientIP = p.Addr.String()
+		mtdt.ClientIp = p.Addr.String()
 	}
 
 	return mtdt
