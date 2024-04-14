@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package pb;
+import "account.proto";
+option go_package = "github.com/vexsx/Simple-Bank/pb";
+
+message ListAccountRequest {
+  int32 PageID = 1;
+  int32 PageSize = 2;
+
+}
+
+message ListAccountResponse {
+  Account account = 1;
+}

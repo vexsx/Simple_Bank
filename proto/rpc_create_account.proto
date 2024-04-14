@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package pb;
+import "account.proto";
+option go_package = "github.com/vexsx/Simple-Bank/pb";
+
+
+message CreateAccountRequest {
+  string owner = 1;
+  int64 balance = 2;
+  string currency = 3;
+}
+
+message CreateAccountResponse {
+  Account account = 1;
+}

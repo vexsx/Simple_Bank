@@ -2,23 +2,25 @@ package api
 
 import (
 	"fmt"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
 	db "github.com/vexsx/Simple-Bank/db/sqlc"
 	"github.com/vexsx/Simple-Bank/token"
 	"github.com/vexsx/Simple-Bank/util"
+	"time"
 )
 
 type Server struct {
 	config     util.Config
-	store      *db.Store
+	store      db.Store
 	tokenMaker token.Maker
 	router     *gin.Engine
 }
 
 // NewServer serve HTTP
-func NewServer(config util.Config, store *db.Store) (*Server, error) {
+func NewServer(config util.Config, store db.Store) (*Server, error) {
 	tokenMaker, err := token.NewPasetoMaker(config.TokenSymmetricKey)
 	if err != nil {
 		return nil, fmt.Errorf("cannot  create make token : %w", err)
@@ -30,7 +32,10 @@ func NewServer(config util.Config, store *db.Store) (*Server, error) {
 	}
 
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
-		v.RegisterValidation("currency", validCurrency)
+		err := v.RegisterValidation("currency", validCurrency)
+		if err != nil {
+			return nil, err
+		}
 	}
 	server.setUpRouter()
 	return server, nil
@@ -39,6 +44,19 @@ func NewServer(config util.Config, store *db.Store) (*Server, error) {
 func (server *Server) setUpRouter() {
 
 	router := gin.Default()
+
+	config := cors.Config{
+		AllowOrigins:        []string{"*", "http://localhost:4200"},
+		AllowMethods:        []string{"PATCH", "POST", "GET"},
+		AllowHeaders:        []string{"*", "Origin", "Authorization", "Content-Type"},
+		ExposeHeaders:       []string{"Content-Type"},
+		AllowPrivateNetwork: true,
+		AllowCredentials:    true,
+		MaxAge:              12 * time.Hour,
+	}
+
+	router.Use(cors.New(config))
+
 	//user action
 	router.POST("/User/Create", server.createUser)
 	router.POST("/User/Login", server.loginUser)
@@ -47,6 +65,7 @@ func (server *Server) setUpRouter() {
 
 	//from here need auth
 	authRoutes := router.Group("/").Use(authMiddleWare(server.tokenMaker))
+	authRoutes.Use(cors.New(config))
 
 	//account actions
 	authRoutes.POST("/CreateAccount", server.createAccount)

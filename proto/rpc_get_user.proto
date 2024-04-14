@@ -4,15 +4,11 @@ package pb;
 import "user.proto";
 option go_package = "github.com/vexsx/Simple-Bank/pb";
 
-
-message CreateUserRequest {
+message GetUserRequest {
   string username = 1;
-  string full_name = 2;
-  string email = 3;
-  string password = 4;
+
 }
 
-message CreateUserResponse {
+message GetUserResponse {
   User user = 1;
-
 }

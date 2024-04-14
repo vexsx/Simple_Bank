@@ -4,7 +4,7 @@ INSERT INTO entries (
     amount
 ) VALUES (
              $1, $2
-         ) RETURNING *;
+ ) RETURNING *;
 
 -- name: GetEntry :one
 SELECT * FROM entries
