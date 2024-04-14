@@ -180,4 +180,5 @@ func runGatewayServer(config util.Config, store db.Store, taskDistributor worker
 		log.Fatal().Err(err).Msg("cannot create HTTP Gateway server")
 	}
 
+	//mewo
 }
