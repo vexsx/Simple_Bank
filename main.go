@@ -4,10 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"github.com/hibiken/asynq"
+	rcors "github.com/rs/cors"
 	"github.com/vexsx/Simple-Bank/worker"
 	"net"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -44,7 +46,7 @@ func main() {
 		log.Fatal().Err(err).Msg("error with opening db")
 	}
 
-	//for docker base databse
+	//for docker base database
 	runDBMigration(config.MigrationURL, config.DBSource)
 
 	store := db.NewStore(conn)
@@ -151,7 +153,19 @@ func runGatewayServer(config util.Config, store db.Store, taskDistributor worker
 		log.Fatal().Err(err).Msg("cannot creat grpc listener")
 	}
 	log.Info().Msgf("start HTTP gateway server at %s", config.HTTPServerAddress)
-	handler := gapi.HttpLogger(mux)
+
+	// Configure the CORS middleware
+	corsMiddleware := rcors.New(rcors.Options{
+		AllowedOrigins:      []string{"http://localhost:4200"},
+		AllowedMethods:      []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:      []string{"Origin", "Authorization", "Content-Type"},
+		ExposedHeaders:      []string{"Content-Type"},
+		AllowCredentials:    true,
+		AllowPrivateNetwork: true,
+		MaxAge:              int(12 * time.Hour),
+	})
+
+	handler := corsMiddleware.Handler(gapi.HttpLogger(mux))
 	err = http.Serve(listener, handler)
 	if err != nil {
 		log.Error().Err(err).Msg("HTTP gateway server failed to serve")
