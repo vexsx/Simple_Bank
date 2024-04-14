@@ -135,6 +135,8 @@ func runGatewayServer(config util.Config, store *db.Store) {
 
 func runGinServer(config util.Config, store *db.Store) {
 
+	//mewo
+
 	server, err := api.NewServer(config, store)
 	if err != nil {
 		log.Fatal().Err(err).Msg("cannot create server")
@@ -144,4 +146,5 @@ func runGinServer(config util.Config, store *db.Store) {
 	if err != nil {
 		log.Fatal().Err(err).Msg("cannot start server")
 	}
+
 }
