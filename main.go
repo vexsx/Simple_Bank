@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"database/sql"
+	"github.com/hibiken/asynq"
+	"github.com/vexsx/Simple-Bank/worker"
 	"net"
 	"net/http"
 	"os"
@@ -42,11 +44,20 @@ func main() {
 		log.Fatal().Err(err).Msg("error with opening db")
 	}
 
+	//for docker base databse
 	runDBMigration(config.MigrationURL, config.DBSource)
 
 	store := db.NewStore(conn)
-	go runGatewayServer(config, store)
-	runGrpcServer(config, store)
+
+	redisOpt := asynq.RedisClientOpt{
+		Addr: config.RedisAddress,
+	}
+
+	taskDistributor := worker.NewRedisTaskDistributor(redisOpt)
+
+	go runTaskProcessor(redisOpt, store)
+	go runGatewayServer(config, store, taskDistributor)
+	runGrpcServer(config, store, taskDistributor)
 
 }
 
@@ -60,11 +71,25 @@ func runDBMigration(migrationURL string, dbSource string) {
 		log.Fatal().Err(err).Msg("failed to run migrate up")
 	}
 
-	log.Printf("db migrated seccessfull y")
+	log.Info().Msg("db migrated successfully")
 }
 
-func runGrpcServer(config util.Config, store *db.Store) {
-	server, err := gapi.NewServer(config, store)
+func runTaskProcessor(
+	redisOpt asynq.RedisClientOpt,
+	store db.Store,
+) {
+
+	taskProcessor := worker.NewRedisTaskProcessor(redisOpt, store)
+
+	log.Info().Msg("start task processor")
+	err := taskProcessor.Start()
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to start task processor")
+	}
+}
+
+func runGrpcServer(config util.Config, store db.Store, taskDistributor worker.TaskDistributor) {
+	server, err := gapi.NewServer(config, store, taskDistributor)
 	if err != nil {
 		log.Fatal().Err(err).Msg("cannot create server")
 	}
@@ -78,15 +103,15 @@ func runGrpcServer(config util.Config, store *db.Store) {
 	if err != nil {
 		log.Fatal().Err(err).Msg("cannot create grpc listener")
 	}
-	log.Printf("start grpc server at %s", listener.Addr().String())
+	log.Info().Msgf("start gRPC server at %s", listener.Addr().String())
 	err = grpcServer.Serve(listener)
 	if err != nil {
 		log.Fatal().Err(err).Msg("cannot creat grpc server")
 	}
 }
 
-func runGatewayServer(config util.Config, store *db.Store) {
-	server, err := gapi.NewServer(config, store)
+func runGatewayServer(config util.Config, store db.Store, taskDistributor worker.TaskDistributor) {
+	server, err := gapi.NewServer(config, store, taskDistributor)
 	if err != nil {
 		log.Fatal().Err(err).Msg("cannot create server")
 	}
@@ -125,15 +150,15 @@ func runGatewayServer(config util.Config, store *db.Store) {
 	if err != nil {
 		log.Fatal().Err(err).Msg("cannot creat grpc listener")
 	}
-	log.Printf("start http gateway server at %s", listener.Addr().String())
+	log.Info().Msgf("start HTTP gateway server at %s", config.HTTPServerAddress)
 	handler := gapi.HttpLogger(mux)
 	err = http.Serve(listener, handler)
 	if err != nil {
-		log.Fatal().Err(err).Msg("cannot create HTTP Gateway server")
+		log.Error().Err(err).Msg("HTTP gateway server failed to serve")
 	}
 }
 
-func runGinServer(config util.Config, store *db.Store) {
+func runGinServer(config util.Config, store db.Store) {
 
 	//mewo
 
