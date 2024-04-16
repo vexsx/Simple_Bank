@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"github.com/hibiken/asynq"
 	rcors "github.com/rs/cors"
+	"github.com/vexsx/Simple-Bank/mail"
 	"github.com/vexsx/Simple-Bank/worker"
 	"net"
 	"net/http"
@@ -57,7 +58,7 @@ func main() {
 
 	taskDistributor := worker.NewRedisTaskDistributor(redisOpt)
 
-	go runTaskProcessor(redisOpt, store)
+	go runTaskProcessor(redisOpt, store, config)
 	go runGatewayServer(config, store, taskDistributor)
 	runGrpcServer(config, store, taskDistributor)
 
@@ -79,9 +80,10 @@ func runDBMigration(migrationURL string, dbSource string) {
 func runTaskProcessor(
 	redisOpt asynq.RedisClientOpt,
 	store db.Store,
+	config util.Config,
 ) {
-
-	taskProcessor := worker.NewRedisTaskProcessor(redisOpt, store)
+	mailer := mail.NewGmailSender(config.EmailSenderName, config.EmailSenderAddress, config.EmailSenderPassword)
+	taskProcessor := worker.NewRedisTaskProcessor(redisOpt, store, mailer)
 
 	log.Info().Msg("start task processor")
 	err := taskProcessor.Start()

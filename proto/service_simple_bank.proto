@@ -6,6 +6,13 @@ import "google/api/annotations.proto";
 import "rpc_create_user.proto";
 import "rpc_login_user.proto";
 import "rpc_update_user.proto";
+import "rpc_get_user.proto";
+import "rpc_renew_token.proto";
+import "rpc_create_account.proto";
+import "rpc_list_account.proto";
+import "rpc_get_account.proto";
+import "rpc_update_account_balance.proto";
+import "rpc_verify_email.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
 option go_package = "github.com/vexsx/Simple-Bank/pb";
@@ -52,6 +59,77 @@ service SimpleBank {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       description: "Use this API to login user and get access token & refresh token";
       summary: "Login user";
+    };
+  }
+  rpc GetUser (GetUserRequest) returns (GetUserResponse) {
+    option (google.api.http) = {
+      get: "/GetUser"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Use this API to get user";
+      summary: "Get User";
+    };
+  }
+  rpc RenewAccessToken (RenewAccessTokenRequest) returns (RenewAccessTokenResponse) {
+    option (google.api.http) = {
+      post: "/Tokens/Renew_Access"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Use this API to renew access_token";
+      summary: "Renew Access Token";
+    };
+  }
+
+  //auth required apis
+  rpc CreateAccount (CreateAccountRequest) returns (CreateAccountResponse) {
+    option (google.api.http) = {
+      post: "/CreateAccount"
+      body: "*"
+
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Use this API to create account";
+      summary: "create account";
+    };
+  }
+  rpc ListAccount (ListAccountRequest) returns (stream ListAccountResponse) {
+    option (google.api.http) = {
+      get: "/Accounts"
+
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Use this API to list accounts";
+      summary: "list accounts";
+    };
+  }
+  rpc GetAccount (GetAccountRequest) returns (GetAccountResponse) {
+    option (google.api.http) = {
+      get: "/Account"
+
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Use this API to get account";
+      summary: "get account";
+    };
+  }
+  rpc UpdateAccountBalance (UpdateAccountBalanceRequest) returns (UpdateAccountBalanceResponse) {
+    option (google.api.http) = {
+      post: "/UpdateAccountBalance"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Use this API to update account balance";
+      summary: "add balance";
+    };
+  }
+  rpc VerifyEmail (VerifyEmailRequest) returns (VerifyEmailResponse) {
+    option (google.api.http) = {
+      get: "/Verify_Email"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Use this API to verify user's email address";
+      summary: "Verify email";
     };
   }
 }
