@@ -60,12 +60,44 @@ func (processor *RedisTaskProcessor) ProcessTaskSendVerifyEmail(ctx context.Cont
 
 	subject := "Welcome to Simple Bank"
 	// TODO: replace this URL with an environment variable that points to a front-end page
-	verifyUrl := fmt.Sprintf("http://localhost:8080/verify_email?email_id=%d&secret_code=%s",
+	verifyUrl := fmt.Sprintf("http://localhost:8080/Verify_Email?email_id=%d&secret_code=%s",
 		verifyEmail.ID, verifyEmail.SecretCode)
-	content := fmt.Sprintf(`Hello %s,<br/>
-	Thank you for registering with us!<br/>
-	Please <a href="%s">click here</a> to verify your email address.<br/>
-	`, user.FullName, verifyUrl)
+	content := fmt.Sprintf(`<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px 0px;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Hello %s,</h2>
+        <p>Thank you for choosing to join us! We're excited to have you on board.</p>
+        <p>As a final step to complete your registration, we kindly ask you to verify your email address by clicking on the button below:</p>
+        <a href="%s" class="button">Verify Email Address</a>
+        <p>If you didn't request this, please ignore this email. Your email won't be added to our list.</p>
+        <p>Thank you for your time and welcome aboard!</p>
+    </div>
+</body>
+</html>
+	`, nil, user.FullName, verifyUrl)
 	to := []string{user.Email}
 
 	err = processor.mailer.SendEmail(subject, content, to, nil, nil, nil)

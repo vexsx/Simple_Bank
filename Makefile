@@ -39,4 +39,7 @@ proto:
 evans:
 	evans --host localhost --port 9090 -r repl
 
-.PHONY: migrateup migrateup  migrateup1 migrateup1 test server db_docs db_schema proto evans new_migration
+redis:
+	docker run --name redis -p 6379:6379 -d redis:7-alpine
+
+.PHONY: migrateup migrateup  migrateup1 migrateup1 test server db_docs db_schema proto evans new_migration redis

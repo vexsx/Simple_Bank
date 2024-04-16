@@ -20,7 +20,7 @@ option go_package = "github.com/vexsx/Simple-Bank/pb";
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: {
     title: "Simple Bank API";
-    version: "1.3.6";
+    version: "1.3.7";
     contact: {
       name: "Vexsx";
       url: "https://github.com/vexsx";
@@ -32,7 +32,7 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
 service SimpleBank {
   rpc CreateUser (CreateUserRequest) returns (CreateUserResponse) {
     option (google.api.http) = {
-      post: "/v1/create_user"
+      post: "/User/Create"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -42,7 +42,7 @@ service SimpleBank {
   }
   rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse) {
     option (google.api.http) = {
-      patch: "/v1/update_user"
+      patch: "/User/Update"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -53,7 +53,7 @@ service SimpleBank {
 
   rpc LoginUser (LoginUserRequest) returns (LoginUserResponse) {
     option (google.api.http) = {
-      post: "/v1/login_user"
+      post: "/User/Login"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {

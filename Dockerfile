@@ -7,12 +7,17 @@ RUN go build -o main main.go
 # Run stage
 FROM alpine:3.19
 WORKDIR /app
-COPY --from=builder /app/main .
-COPY app.env .
-COPY start.sh .
-COPY wait-for.sh .
-COPY db/migration ./db/migration
+COPY --from=builder /app/main /app/main
+COPY app.env /app/
+COPY start.sh /app/
+COPY wait-for.sh /app/
+COPY db/migration /app/db/migration
+
+# Ensure scripts are executable
+RUN chmod +x /app/start.sh /app/wait-for.sh
 
 EXPOSE 8080 9090
-CMD [ "/app/main" ]
-ENTRYPOINT [ "/app/start.sh" ]
+
+# Set entry point and default command
+ENTRYPOINT ["/app/start.sh"]
+CMD ["/app/main"]
