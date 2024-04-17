@@ -14,10 +14,10 @@ services:
       - REDIS_ADDRESS=redis:6379
     depends_on:
       - redis
-    entrypoint:
-      - "/app/wait-for.sh"
-      - "--"
-      - "/app/start.sh"
+#    entrypoint:
+#      - "/app/wait-for.sh"
+#      - "--"
+#      - "/app/start.sh"
     command: ["/app/main"]
 
 volumes:

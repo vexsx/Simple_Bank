@@ -19,5 +19,5 @@ RUN chmod +x /app/start.sh /app/wait-for.sh
 EXPOSE 8080 9090
 
 # Set entry point and default command
-ENTRYPOINT ["/app/start.sh"]
+#ENTRYPOINT ["/app/start.sh"]
 CMD ["/app/main"]
