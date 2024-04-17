@@ -62,7 +62,21 @@ func (processor *RedisTaskProcessor) ProcessTaskSendVerifyEmail(ctx context.Cont
 	// TODO: replace this URL with an environment variable that points to a front-end page
 	verifyUrl := fmt.Sprintf("http://localhost:8080/Verify_Email?email_id=%d&secret_code=%s",
 		verifyEmail.ID, verifyEmail.SecretCode)
-	content := fmt.Sprintf(`<html>
+	content := fmt.Sprintf(emailbody, nil, user.FullName, verifyUrl)
+	to := []string{user.Email}
+
+	err = processor.mailer.SendEmail(subject, content, to, nil, nil, nil)
+	if err != nil {
+		return fmt.Errorf("failed to send verify email: %w", err)
+	}
+
+	log.Info().Str("type", task.Type()).Bytes("payload", task.Payload()).
+		Str("email", user.Email).Msg("processed task")
+	return nil
+}
+
+// email body design
+const emailbody = `<html>
 <head>
     <style>
         body {
@@ -97,15 +111,4 @@ func (processor *RedisTaskProcessor) ProcessTaskSendVerifyEmail(ctx context.Cont
     </div>
 </body>
 </html>
-	`, nil, user.FullName, verifyUrl)
-	to := []string{user.Email}
-
-	err = processor.mailer.SendEmail(subject, content, to, nil, nil, nil)
-	if err != nil {
-		return fmt.Errorf("failed to send verify email: %w", err)
-	}
-
-	log.Info().Str("type", task.Type()).Bytes("payload", task.Payload()).
-		Str("email", user.Email).Msg("processed task")
-	return nil
-}
+	`
