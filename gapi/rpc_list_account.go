@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (server *Server) ListAccountss(ctx context.Context, req *pb.ListAccountRequest) (*pb.ListAccountResponse, error) {
+func (server *Server) ListAccount(ctx context.Context, req *pb.ListAccountRequest) (*pb.ListAccountResponse, error) {
 
 	//TODO lists accounts
 	authPayload, err := server.authorizeUser(ctx)
@@ -27,6 +27,13 @@ func (server *Server) ListAccountss(ctx context.Context, req *pb.ListAccountRequ
 		return nil, status.Errorf(codes.Internal, ": %s", err)
 	}
 
-	_ = accounts
-	return nil, nil
+	rsp := &pb.ListAccountResponse{
+		Account: convertAccounts(accounts),
+	}
+
+	return rsp, nil
 }
+
+//func (UnimplementedSimpleBankServer) ListAccount(context.Context, *ListAccountRequest) (*ListAccountResponse, error) {
+//	return nil, status.Errorf(codes.Unimplemented, "method ListAccount not implemented")
+//}

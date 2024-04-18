@@ -61,18 +61,9 @@
         "operationId": "SimpleBank_ListAccount",
         "responses": {
           "200": {
-            "description": "A successful response.(streaming responses)",
+            "description": "A successful response.",
             "schema": {
-              "type": "object",
-              "properties": {
-                "result": {
-                  "$ref": "#/definitions/pbListAccountResponse"
-                },
-                "error": {
-                  "$ref": "#/definitions/rpcStatus"
-                }
-              },
-              "title": "Stream result of pbListAccountResponse"
+              "$ref": "#/definitions/pbListAccountResponse"
             }
           },
           "default": {
@@ -471,7 +462,11 @@
       "type": "object",
       "properties": {
         "account": {
-          "$ref": "#/definitions/pbAccount"
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/pbAccount"
+          }
         }
       }
     },
