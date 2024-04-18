@@ -58,7 +58,7 @@ func (processor *RedisTaskProcessor) ProcessTaskSendVerifyEmail(ctx context.Cont
 		return fmt.Errorf("failed to create verfiy email : %w", err)
 	}
 
-	subject := "Welcome to Simple Bank"
+	subject := "Welcome to Vexsx Simple Bank"
 	// TODO: replace this URL with an environment variable that points to a front-end page
 	verifyUrl := fmt.Sprintf("http://localhost:8080/Verify_Email?email_id=%d&secret_code=%s",
 		verifyEmail.ID, verifyEmail.SecretCode)
