@@ -39,3 +39,5 @@ func (server *Server) CreateAccount(ctx context.Context, req *pb.CreateAccountRe
 
 	return rsp, nil
 }
+
+//TODO validate currency

@@ -27,6 +27,24 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
       email: "p.gheiratian1382@yahoo.com";
     };
   };
+  security {
+    security_requirement {
+      key: "ApiKeyAuth";
+      value: {}
+    }
+  }
+  security_definitions {
+    security {
+      key: "ApiKeyAuth";
+      value: {
+        type: TYPE_API_KEY;
+        name: "Authorization";
+        in: IN_HEADER;
+        description: "API Key Authentication";
+
+      }
+    }
+  }
 };
 
 service SimpleBank {
@@ -88,13 +106,14 @@ service SimpleBank {
       }
       parameters {
         headers : {
-          required: true
+          required: false
           description: "API Key Authentication"
           name: "Authorization"
           type: STRING
-
+          format: "Bearer"
         }
       }
+
     };
   }
   rpc CreateAccount (CreateAccountRequest) returns (CreateAccountResponse) {
@@ -114,7 +133,7 @@ service SimpleBank {
       }
       parameters {
         headers : {
-          required: true
+          required: f
           description: "API Key Authentication"
           name: "Authorization"
           type: STRING
@@ -138,7 +157,7 @@ service SimpleBank {
       }
       parameters {
         headers : {
-          required: true
+          required: f
           description: "API Key Authentication"
           name: "Authorization"
           type: STRING
@@ -162,7 +181,7 @@ service SimpleBank {
       }
       parameters {
         headers : {
-          required: true
+          required: f
           description: "API Key Authentication"
           name: "Authorization"
           type: STRING
@@ -186,7 +205,7 @@ service SimpleBank {
       }
       parameters {
         headers : {
-          required: true
+          required: f
           description: "API Key Authentication"
           name: "Authorization"
           type: STRING
@@ -209,7 +228,7 @@ service SimpleBank {
       }
       parameters {
         headers : {
-          required: true
+          required: f
           description: "API Key Authentication"
           name: "Authorization"
           type: STRING
@@ -218,3 +237,4 @@ service SimpleBank {
     };
   }
 }
+

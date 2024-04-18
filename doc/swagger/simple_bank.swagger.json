@@ -47,6 +47,13 @@
             "required": false,
             "type": "string",
             "format": "int64"
+          },
+          {
+            "name": "Authorization",
+            "description": "API Key Authentication",
+            "in": "header",
+            "required": false,
+            "type": "string"
           }
         ],
         "tags": [
@@ -92,6 +99,13 @@
             "required": false,
             "type": "integer",
             "format": "int32"
+          },
+          {
+            "name": "Authorization",
+            "description": "API Key Authentication",
+            "in": "header",
+            "required": false,
+            "type": "string"
           }
         ],
         "tags": [
@@ -131,6 +145,13 @@
             "schema": {
               "$ref": "#/definitions/pbCreateAccountRequest"
             }
+          },
+          {
+            "name": "Authorization",
+            "description": "API Key Authentication",
+            "in": "header",
+            "required": false,
+            "type": "string"
           }
         ],
         "tags": [
@@ -236,6 +257,13 @@
             "schema": {
               "$ref": "#/definitions/pbUpdateAccountBalanceRequest"
             }
+          },
+          {
+            "name": "Authorization",
+            "description": "API Key Authentication",
+            "in": "header",
+            "required": false,
+            "type": "string"
           }
         ],
         "tags": [
@@ -348,8 +376,9 @@
             "name": "Authorization",
             "description": "API Key Authentication",
             "in": "header",
-            "required": true,
-            "type": "string"
+            "required": false,
+            "type": "string",
+            "format": "Bearer"
           }
         ],
         "tags": [
@@ -392,6 +421,13 @@
           {
             "name": "secretCode",
             "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Authorization",
+            "description": "API Key Authentication",
+            "in": "header",
             "required": false,
             "type": "string"
           }
@@ -667,5 +703,18 @@
         }
       }
     }
-  }
+  },
+  "securityDefinitions": {
+    "ApiKeyAuth": {
+      "type": "apiKey",
+      "description": "API Key Authentication",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ]
 }
