@@ -10,7 +10,6 @@ import (
 
 func (server *Server) ListAccount(ctx context.Context, req *pb.ListAccountRequest) (*pb.ListAccountResponse, error) {
 
-	//TODO lists accounts
 	authPayload, err := server.authorizeUser(ctx)
 	if err != nil {
 		return nil, unauthenticatedError(err)
@@ -33,7 +32,3 @@ func (server *Server) ListAccount(ctx context.Context, req *pb.ListAccountReques
 
 	return rsp, nil
 }
-
-//func (UnimplementedSimpleBankServer) ListAccount(context.Context, *ListAccountRequest) (*ListAccountResponse, error) {
-//	return nil, status.Errorf(codes.Unimplemented, "method ListAccount not implemented")
-//}
