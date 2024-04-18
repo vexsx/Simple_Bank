@@ -20,7 +20,7 @@ option go_package = "github.com/vexsx/Simple-Bank/pb";
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: {
     title: "Simple Bank API";
-    version: "1.3.7";
+    version: "1.3.8";
     contact: {
       name: "Vexsx";
       url: "https://github.com/vexsx";
@@ -40,17 +40,6 @@ service SimpleBank {
       summary: "Create new user";
     };
   }
-  rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse) {
-    option (google.api.http) = {
-      patch: "/User/Update"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      description: "Use this API to update user";
-      summary: "Update user";
-    };
-  }
-
   rpc LoginUser (LoginUserRequest) returns (LoginUserResponse) {
     option (google.api.http) = {
       post: "/User/Login"
@@ -82,6 +71,32 @@ service SimpleBank {
   }
 
   //auth required apis
+
+  rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse) {
+    option (google.api.http) = {
+      patch: "/User/Update"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Use this API to update user";
+      summary: "Update user";
+      security: {
+        security_requirement: {
+          key: "ApiKeyAuth";
+          value: {}
+        }
+      }
+      parameters {
+        headers : {
+          required: true
+          description: "API Key Authentication"
+          name: "Authorization"
+          type: STRING
+
+        }
+      }
+    };
+  }
   rpc CreateAccount (CreateAccountRequest) returns (CreateAccountResponse) {
     option (google.api.http) = {
       post: "/CreateAccount"
@@ -91,6 +106,20 @@ service SimpleBank {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       description: "Use this API to create account";
       summary: "create account";
+      security: {
+        security_requirement: {
+          key: "ApiKeyAuth";
+          value: {}
+        }
+      }
+      parameters {
+        headers : {
+          required: true
+          description: "API Key Authentication"
+          name: "Authorization"
+          type: STRING
+        }
+      }
     };
   }
   rpc ListAccount (ListAccountRequest) returns ( ListAccountResponse) {
@@ -101,6 +130,20 @@ service SimpleBank {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       description: "Use this API to list accounts";
       summary: "list accounts";
+      security: {
+        security_requirement: {
+          key: "ApiKeyAuth";
+          value: {}
+        }
+      }
+      parameters {
+        headers : {
+          required: true
+          description: "API Key Authentication"
+          name: "Authorization"
+          type: STRING
+        }
+      }
     };
   }
   rpc GetAccount (GetAccountRequest) returns (GetAccountResponse) {
@@ -111,6 +154,20 @@ service SimpleBank {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       description: "Use this API to get account";
       summary: "get account";
+      security: {
+        security_requirement: {
+          key: "ApiKeyAuth";
+          value: {}
+        }
+      }
+      parameters {
+        headers : {
+          required: true
+          description: "API Key Authentication"
+          name: "Authorization"
+          type: STRING
+        }
+      }
     };
   }
   rpc UpdateAccountBalance (UpdateAccountBalanceRequest) returns (UpdateAccountBalanceResponse) {
@@ -121,6 +178,20 @@ service SimpleBank {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       description: "Use this API to update account balance";
       summary: "add balance";
+      security: {
+        security_requirement: {
+          key: "ApiKeyAuth";
+          value: {}
+        }
+      }
+      parameters {
+        headers : {
+          required: true
+          description: "API Key Authentication"
+          name: "Authorization"
+          type: STRING
+        }
+      }
     };
   }
   rpc VerifyEmail (VerifyEmailRequest) returns (VerifyEmailResponse) {
@@ -130,6 +201,20 @@ service SimpleBank {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       description: "Use this API to verify user's email address";
       summary: "Verify email";
+      security: {
+        security_requirement: {
+          key: "ApiKeyAuth";
+          value: {}
+        }
+      }
+      parameters {
+        headers : {
+          required: true
+          description: "API Key Authentication"
+          name: "Authorization"
+          type: STRING
+        }
+      }
     };
   }
 }
