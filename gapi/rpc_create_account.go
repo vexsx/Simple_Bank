@@ -5,6 +5,7 @@ import (
 	"github.com/lib/pq"
 	db "github.com/vexsx/Simple-Bank/db/sqlc"
 	"github.com/vexsx/Simple-Bank/pb"
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -40,4 +41,8 @@ func (server *Server) CreateAccount(ctx context.Context, req *pb.CreateAccountRe
 	return rsp, nil
 }
 
-//TODO validate currency
+// TODO validate currency
+func validateCreateAccountRequest(req *pb.LoginUserRequest) (violations []*errdetails.BadRequest_FieldViolation) {
+
+	return violations
+}
