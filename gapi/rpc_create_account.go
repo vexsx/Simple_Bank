@@ -5,6 +5,7 @@ import (
 	"github.com/lib/pq"
 	db "github.com/vexsx/Simple-Bank/db/sqlc"
 	"github.com/vexsx/Simple-Bank/pb"
+	"github.com/vexsx/Simple-Bank/val"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -46,8 +47,10 @@ func (server *Server) CreateAccount(ctx context.Context, req *pb.CreateAccountRe
 	return rsp, nil
 }
 
-// TODO validate currency
 func validateCreateAccountRequest(req *pb.CreateAccountRequest) (violations []*errdetails.BadRequest_FieldViolation) {
-
+	err := val.ValidateCurrency(req.Currency)
+	if err != nil {
+		violations = append(violations, fieldViolation("currency", err))
+	}
 	return violations
 }

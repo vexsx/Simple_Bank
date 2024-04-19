@@ -2,6 +2,7 @@ package val
 
 import (
 	"fmt"
+	"github.com/vexsx/Simple-Bank/util"
 	"net/mail"
 	"regexp"
 )
@@ -62,4 +63,12 @@ func ValidateEmailId(value int64) error {
 
 func ValidateSecretCode(value string) error {
 	return ValidateString(value, 32, 128)
+}
+
+func ValidateCurrency(value string) error {
+
+	if util.IsSupportedCurrency(value) == true {
+		return nil
+	}
+	return fmt.Errorf("Currency doesnt support yet !")
 }
