@@ -12,6 +12,11 @@ import (
 
 func (server *Server) CreateAccount(ctx context.Context, req *pb.CreateAccountRequest) (*pb.CreateAccountResponse, error) {
 
+	validation := validateCreateAccountRequest(req)
+	if validation != nil {
+		return nil, invalidArgumentError(validation)
+	}
+
 	authPayload, err := server.authorizeUser(ctx)
 	if err != nil {
 		return nil, unauthenticatedError(err)
@@ -42,7 +47,7 @@ func (server *Server) CreateAccount(ctx context.Context, req *pb.CreateAccountRe
 }
 
 // TODO validate currency
-func validateCreateAccountRequest(req *pb.LoginUserRequest) (violations []*errdetails.BadRequest_FieldViolation) {
+func validateCreateAccountRequest(req *pb.CreateAccountRequest) (violations []*errdetails.BadRequest_FieldViolation) {
 
 	return violations
 }
