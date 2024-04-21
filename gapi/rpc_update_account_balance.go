@@ -4,13 +4,14 @@ import (
 	"context"
 	db "github.com/vexsx/Simple-Bank/db/sqlc"
 	"github.com/vexsx/Simple-Bank/pb"
+	"github.com/vexsx/Simple-Bank/util"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 func (server *Server) UpdateAccountBalance(ctx context.Context, req *pb.UpdateAccountBalanceRequest) (*pb.UpdateAccountBalanceResponse, error) {
 
-	_, err := server.authorizeUser(ctx)
+	_, err := server.authorizeUser(ctx, []string{util.BankerRole, util.DepositorRole})
 	if err != nil {
 		return nil, unauthenticatedError(err)
 	}

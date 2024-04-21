@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/vexsx/Simple-Bank/pb"
+	"github.com/vexsx/Simple-Bank/util"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -19,7 +20,7 @@ func (server *Server) GetAccount(ctx context.Context, req *pb.GetAccountRequest)
 		return nil, status.Errorf(codes.Internal, ": %s", err)
 	}
 
-	authPayload, err := server.authorizeUser(ctx)
+	authPayload, err := server.authorizeUser(ctx, []string{util.BankerRole, util.DepositorRole})
 	if err != nil {
 		return nil, unauthenticatedError(err)
 	}

@@ -5,6 +5,7 @@ import (
 	"github.com/lib/pq"
 	db "github.com/vexsx/Simple-Bank/db/sqlc"
 	"github.com/vexsx/Simple-Bank/pb"
+	"github.com/vexsx/Simple-Bank/util"
 	"github.com/vexsx/Simple-Bank/val"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
@@ -18,7 +19,7 @@ func (server *Server) CreateAccount(ctx context.Context, req *pb.CreateAccountRe
 		return nil, invalidArgumentError(validation)
 	}
 
-	authPayload, err := server.authorizeUser(ctx)
+	authPayload, err := server.authorizeUser(ctx, []string{util.BankerRole, util.DepositorRole})
 	if err != nil {
 		return nil, unauthenticatedError(err)
 	}
