@@ -158,7 +158,7 @@ func runGatewayServer(config util.Config, store db.Store, taskDistributor worker
 
 	// Configure the CORS middleware
 	corsMiddleware := rcors.New(rcors.Options{
-		AllowedOrigins:      []string{"http://localhost:4200"},
+		AllowedOrigins:      []string{"*", "http://localhost:4200"},
 		AllowedMethods:      []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:      []string{"Origin", "Authorization", "Content-Type"},
 		ExposedHeaders:      []string{"Content-Type"},
