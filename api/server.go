@@ -48,7 +48,7 @@ func (server *Server) setUpRouter() {
 	config := cors.Config{
 		AllowOrigins:        []string{"*", "http://localhost:4200"},
 		AllowMethods:        []string{"PATCH", "POST", "GET"},
-		AllowHeaders:        []string{"*", "Origin", "Authorization", "Content-Type"},
+		AllowHeaders:        []string{"*", "Origin", "Authorization", "Content-Type", "*"},
 		ExposeHeaders:       []string{"Content-Type"},
 		AllowPrivateNetwork: true,
 		AllowCredentials:    true,
