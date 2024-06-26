@@ -3,32 +3,30 @@ package main
 import (
 	"context"
 	"database/sql"
-	"github.com/hibiken/asynq"
-	rcors "github.com/rs/cors"
-	"github.com/vexsx/Simple-Bank/mail"
-	"github.com/vexsx/Simple-Bank/worker"
-	"net"
-	"net/http"
-	"os"
-	"time"
-
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/hibiken/asynq"
 	_ "github.com/lib/pq"
 	"github.com/rakyll/statik/fs"
+	rcors "github.com/rs/cors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/vexsx/Simple-Bank/api"
 	db "github.com/vexsx/Simple-Bank/db/sqlc"
 	_ "github.com/vexsx/Simple-Bank/doc/statik"
 	"github.com/vexsx/Simple-Bank/gapi"
+	"github.com/vexsx/Simple-Bank/mail"
 	"github.com/vexsx/Simple-Bank/pb"
 	"github.com/vexsx/Simple-Bank/util"
+	"github.com/vexsx/Simple-Bank/worker"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/protobuf/encoding/protojson"
+	"net"
+	"net/http"
+	"os"
 )
 
 func main() {
@@ -158,15 +156,16 @@ func runGatewayServer(config util.Config, store db.Store, taskDistributor worker
 
 	// Configure the CORS middleware
 	corsMiddleware := rcors.New(rcors.Options{
-		AllowedOrigins:      []string{"*", "http://localhost:4200"},
-		AllowedMethods:      []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:      []string{"*", "Origin", "Authorization", "Content-Type", "Access-Control-Allow-Headers"},
-		ExposedHeaders:      []string{"*", "Content-Type", "Origin", "Authorization", "Content-Type", "Access-Control-Allow-Headers"},
-		OptionsPassthrough:  true,
-		AllowCredentials:    true,
-		AllowPrivateNetwork: true,
-		Debug:               true,
-		MaxAge:              int(12 * time.Hour),
+		AllowedOrigins:       []string{"*", "http://localhost:4200"},
+		AllowedMethods:       []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:       []string{"*", "Origin", "Authorization", "Content-Type", "Access-Control-Allow-Headers"},
+		ExposedHeaders:       []string{"*", "Content-Type", "Origin", "Authorization", "Content-Type", "Access-Control-Allow-Headers"},
+		OptionsPassthrough:   false,
+		AllowCredentials:     false,
+		AllowPrivateNetwork:  true,
+		OptionsSuccessStatus: 200,
+		Debug:                true,
+		MaxAge:               43200,
 	})
 
 	handler := corsMiddleware.Handler(gapi.HttpLogger(mux))
