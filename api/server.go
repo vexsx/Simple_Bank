@@ -9,7 +9,6 @@ import (
 	db "github.com/vexsx/Simple-Bank/db/sqlc"
 	"github.com/vexsx/Simple-Bank/token"
 	"github.com/vexsx/Simple-Bank/util"
-	"time"
 )
 
 type Server struct {
@@ -49,10 +48,10 @@ func (server *Server) setUpRouter() {
 		AllowOrigins:        []string{"*", "http://localhost:4200"},
 		AllowMethods:        []string{"PATCH", "POST", "GET"},
 		AllowHeaders:        []string{"*", "Origin", "Authorization", "Content-Type"},
-		ExposeHeaders:       []string{"Content-Type"},
+		ExposeHeaders:       []string{"*", "Content-Type", "Origin", "Authorization", "Content-Type", "Access-Control-Allow-Headers"},
 		AllowPrivateNetwork: true,
-		AllowCredentials:    true,
-		MaxAge:              12 * time.Hour,
+		AllowCredentials:    false,
+		MaxAge:              43200,
 	}
 
 	router.Use(cors.New(config))
