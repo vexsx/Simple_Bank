@@ -165,6 +165,7 @@ func runGatewayServer(config util.Config, store db.Store, taskDistributor worker
 		OptionsPassthrough:  true,
 		AllowCredentials:    true,
 		AllowPrivateNetwork: true,
+		Debug:               true,
 		MaxAge:              int(12 * time.Hour),
 	})
 
