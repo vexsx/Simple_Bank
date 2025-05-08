@@ -1,6 +1,8 @@
 
-DB_URL=postgresql://vexsx:New2021!@167.99.138.192:5432/Bank_db?sslmode=disable
+DB_URL=postgresql://vexsx:New2021!@95.38.65.14:5432/Bank_db?sslmode=disable
 
+createdb:
+	docker exec -it postgres12 createdb --username=root --owner=root Bank_db
 migrateup :
 	migrate -path db/migration -database "$(DB_URL)" -verbose up
 
