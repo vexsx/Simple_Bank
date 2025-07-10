@@ -1,5 +1,5 @@
 
-DB_URL=postgresql://vexsx:New2021!@95.38.65.14:5432/Bank_db?sslmode=disable
+DB_URL=postgresql://vexsx:New2021!@185.79.96.50:5432/Bank_db?sslmode=disable
 
 createdb:
 	docker exec -it postgres12 createdb --username=root --owner=root Bank_db
